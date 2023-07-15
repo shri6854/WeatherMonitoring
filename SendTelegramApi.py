@@ -1,5 +1,5 @@
 import requests
-
+ 
 fd1 = open("G:\\WeatherMonitorig\\_out\\PuneWeatherData.csv","r")
 filedata1 = fd1.readlines()
 fd1.close()

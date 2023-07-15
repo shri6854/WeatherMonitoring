@@ -1,0 +1,94 @@
+#!groovy
+
+pipeline {
+    agent any
+	stages {
+		stage('Parallel Stage')
+		{
+			parallel
+			{
+				stage('ExtractData_Pune') {
+					steps {
+						dir('G:/WeatherMonitorig/bin')
+						{
+							echo "Collect weather data for Pune city"
+							bat "set"
+							bat 'python WeatherInfo.py -query "http://api.weatherapi.com/v1/current.json?key=015b3c52dcfe424ca5a193028211710&q=Pune&aqi=yes" -outpath "./../_out/'
+						}
+					}
+				}
+				stage('ExtractData_Hyderabad') {
+					steps {
+						dir('G:/WeatherMonitorig/bin')
+						{
+							echo "Collect weather data for Hyderabad city"
+							bat 'python WeatherInfo.py -query "http://api.weatherapi.com/v1/current.json?key=015b3c52dcfe424ca5a193028211710&q=Hyderabad&aqi=yes" -outpath "./../_out/'
+						}
+					}
+				}
+				stage('ExtractData_Bengaluru') {
+					steps {
+						dir('G:/WeatherMonitorig/bin')
+						{
+							echo "Collect weather data for Bengaluru city"
+							bat 'python WeatherInfo.py -query "http://api.weatherapi.com/v1/current.json?key=015b3c52dcfe424ca5a193028211710&q=Bengaluru&aqi=yes" -outpath "./../_out/'
+						}
+					}
+				}
+			}
+		}
+		stage('Test') {
+			steps {
+			    dir('G:/WeatherMonitorig/bin')
+				{
+					echo "Test WeatherInfo.py file"
+					bat 'python TestWeatherInfo.py'
+				}
+			}
+		}
+		stage('CSV to XML') {
+			steps {
+				dir('G:/WeatherMonitorig/bin')
+				{
+					echo "Convert CSV file to XML file"
+					bat 'python CSVtoXML.py'
+				}
+			}
+		}
+		stage('Deploy') {
+			steps {
+				echo "Stage for deploy code on server"
+			}
+		}
+		stage('Send output to user'){
+			parallel{
+				stage('Send Email') {
+					steps {
+					dir('G:/WeatherMonitorig/bin')
+						{
+							echo "Send Emails about status"
+							bat 'python SendEmail.py'
+						}
+					}
+				}
+				stage('Send output on telegram chan') {
+					steps {
+						dir('G:/WeatherMonitorig/bin')
+						{
+							echo "Send weather info on telegram channel"
+							bat 'python G:\\WeatherMonitorig\\bin\\SendTelegramApi.py'
+						}
+					}
+				}
+			}
+		}
+	}
+	post {
+        always {
+		    dir('G:/WeatherMonitorig/_out')
+			{
+				archiveArtifacts artifacts: '*.*', fingerprint: true
+			}
+        }
+    }
+}

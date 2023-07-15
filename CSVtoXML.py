@@ -1,7 +1,7 @@
 fd = open("G:\\WeatherMonitorig\\_out\\PuneWeatherData.csv","r")
 filedata = fd.readlines()
 fd.close()
-
+ 
 xmlFormat = "<TempratureData>\n\n"
 
 for line in filedata:
