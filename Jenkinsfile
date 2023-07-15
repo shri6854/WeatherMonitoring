@@ -83,4 +83,13 @@ pipeline {
 			}
 		}
 	}
+	post {
+        always {
+		    dir('G:/WeatherMonitorig/_out')
+			{
+				archiveArtifacts artifacts: '*.*', fingerprint: true
+			}
+			
+        }
+    }
 }
